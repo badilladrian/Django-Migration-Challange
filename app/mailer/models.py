@@ -13,16 +13,14 @@ class Company(models.Model):
     name = models.CharField(max_length=150)
     bic = models.CharField(max_length=150, blank=True)
 
-    # no need to use it
     def get_order_count(self):
         return self.orders.count()
 
-    # though I improved the query here, but it still need lots of time to load
     def get_order_sum(self):
         total_sum = self.contacts.annotate(order_total=Sum('orders__total')).aggregate(Sum('order_total'))['order_total__sum']
         return total_sum
 
-    # I did this one which will save loading time
+    # save loading time
     def get_order_breakdown(self):
         contacts = self.contacts.annotate(order_total=Sum('orders__total'), order_count=Count('orders__total'))
         sum_val = sum(list(contacts.values_list("order_total", flat=True)))
